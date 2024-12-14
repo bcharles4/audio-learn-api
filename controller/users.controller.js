@@ -40,34 +40,56 @@ export const userRegister = async (req, res) => {
 export const loginUser = async (req, res) => {
     const { usersID, password } = req.body;
 
-    console.log("Received usersID:", usersID);  // Debugging the received usersID
-    console.log("Received password:", password);  // Debugging the received password
+    // Debugging the received usersID and password
+    console.log("Received usersID:", usersID);  
+    console.log("Received password:", password);  
 
+    // Check if usersID and password are provided
     if (!usersID || !password) {
-        return res.status(400).json({ success: false, message: "UsersID and password are required" });
+        return res.status(400).json({
+            success: false,
+            message: "UsersID and password are required",
+        });
     }
 
     try {
+        // Find user by usersID
         const user = await Users.findOne({ usersID });
 
         if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
         }
 
-        // Debugging the password comparison
-        console.log("Stored password:", user.password);  // Log the password from the database
+        // Debugging: Log stored password
+        console.log("Stored password:", user.password);
 
+        // Directly compare password with stored password (without hashing)
         if (password !== user.password) {
-            return res.status(401).json({ success: false, message: "Invalid password" });
+            return res.status(401).json({
+                success: false,
+                message: "Invalid password",
+            });
         }
 
+        // Send user data on successful login
         res.status(200).json({
             success: true,
             message: "Login successful",
-            data: { usersID: user.usersID, firstName: user.firstName, lastName: user.lastName }
+            data: {
+                usersID: user.usersID,
+                firstName: user.firstName,
+                lastName: user.lastName,
+            },
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        // Handle unexpected errors
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
 };
 

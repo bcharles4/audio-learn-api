@@ -13,6 +13,8 @@ app.use(cors({
     origin: '*', // Use environment variable for frontend URL in production
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,  // If you're dealing with cookies or credentials
+
 }));
 
 // Parse JSON bodies
@@ -20,7 +22,7 @@ app.use(express.json());
 
 // Serve static files (e.g., uploaded files)
 const uploadsDir = path.join(process.cwd(), 'uploads');
-app.use('/uploads', express.static(uploadsDir));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/users', userRoutes);

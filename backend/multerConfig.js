@@ -1,31 +1,41 @@
-import multer from "multer";
-import path from "path";
+import multer from 'multer';
 
-// Configure Multer
+// Set up storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "uploads/"); // Directory to save uploaded images
+        cb(null, 'uploads/'); // Directory to store uploaded files
     },
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
+        cb(null, `${Date.now()}-${file.originalname}`);
     },
 });
 
-// File filter to ensure only images are uploaded
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
-    if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error("Invalid file type. Only JPEG, PNG, and JPG are allowed."), false);
+// Set up multer middleware
+const upload = multer({ storage });
+
+// Endpoint to upload profile picture
+app.post('/api/users/upload-profile-picture', upload.single('profilePicture'), async (req, res) => {
+    try {
+        const { usersID } = req.body;
+
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'No file uploaded' });
+        }
+
+        // Update user's profile picture in the database
+        const user = await Users.findOneAndUpdate(
+            { usersID },
+            { profilePicture: req.file.path },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        res.status(200).json({ success: true, data: user });
+    } catch (error) {
+        console.error('Error uploading profile picture:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
     }
-};
-
-const upload = multer({ 
-    storage, 
-    fileFilter,
-    limits: { fileSize: 2 * 1024 * 1024 }, // Limit file size to 2MB
 });
-
-export default upload;

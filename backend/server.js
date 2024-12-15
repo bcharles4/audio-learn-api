@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 // Configure CORS for security
 app.use(cors({
-    origin: process.env.FRONTEND_URL || '*', // Use environment variable for frontend URL in production
+    origin: '*', // Use environment variable for frontend URL in production
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));

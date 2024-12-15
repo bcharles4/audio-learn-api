@@ -5,7 +5,7 @@ import {
     getUser, 
     updateUser, 
     deleteUser,
-    uploadProfilePicture, upload
+    uploadProfilePicture
 } from "../controller/users.controller.js";
 
 const router = express.Router();
@@ -26,7 +26,7 @@ router.put("/:usersID", updateUser);
 router.delete("/:usersID", deleteUser);
 
 // Profile Picture Upload Route
-router.post("/upload-profile-picture", upload.single("profilePicture"), uploadProfilePicture);
+router.post('/upload-profile-picture', upload.single('profilePicture'), uploadProfilePicture);
 
 
 export default router;

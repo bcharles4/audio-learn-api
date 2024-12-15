@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Users from "../backend/models/users.model.js";
+import fs from 'fs';
 
 
 export const userRegister = async (req, res) => {
@@ -170,38 +171,49 @@ export const deleteUser = async (req, res) => {
     }
 };
 
+// controllers/users.controller.js
 
 
 export const uploadProfilePicture = async (req, res) => {
     const { usersID } = req.body;
 
     if (!usersID) {
-        return res.status(400).json({ success: false, message: "UsersID is required" });
+        return res.status(400).json({ success: false, message: 'UsersID is required' });
     }
 
     if (!req.file) {
-        return res.status(400).json({ success: false, message: "No file uploaded" });
+        return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
     try {
-        // Find the user in the database
-        const user = await Users.findOne({ usersID });
+        const user = await Users.findOneAndUpdate(
+            { usersID },
+            { profilePicture: `/uploads/${req.file.filename}` },
+            { new: true }
+        );
 
         if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
+            // Cleanup uploaded file if user not found
+            fs.unlinkSync(req.file.path);
+            return res.status(404).json({ success: false, message: 'User not found' });
         }
-
-        // Save the file path in the user's profile
-        user.profilePicture = `/uploads/${req.file.filename}`;
-        const updatedUser = await user.save();
 
         res.status(200).json({
             success: true,
-            message: "Profile picture uploaded successfully",
-            data: { usersID: updatedUser.usersID, profilePicture: updatedUser.profilePicture },
+            message: 'Profile picture uploaded successfully',
+            data: {
+                usersID: user.usersID,
+                profilePicture: user.profilePicture,
+            },
         });
     } catch (error) {
-        console.error("Error uploading profile picture:", error);
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Error uploading profile picture:', error);
+
+        // Cleanup uploaded file if an error occurs
+        if (req.file && req.file.path) {
+            fs.unlinkSync(req.file.path);
+        }
+
+        res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };

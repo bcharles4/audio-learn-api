@@ -1,35 +1,49 @@
 import express from 'express';
-import { connectDB } from './config/db.js'; // Import database connection
-import router from '../routes/users.routes.js'; // Import the router from the routes file
-import cors from 'cors'; // CORS middleware to allow cross-origin requests
+import cors from 'cors';
+import path from 'path';
+import { connectDB } from './config/db.js';
+import userRoutes from '../routes/users.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-// Configure CORS to allow cross-origin requests
+// Configure CORS for security
 app.use(cors({
-    origin: '*', // Replace '*' with your frontend URL in production for better security
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
-    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+    origin: process.env.FRONTEND_URL || '*', // Use environment variable for frontend URL in production
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Parse JSON bodies
 app.use(express.json());
 
+// Serve static files (e.g., uploaded files)
+const uploadsDir = path.join(process.cwd(), 'uploads');
+app.use('/uploads', express.static(uploadsDir));
+
 // Routes
-app.use('/api/users', router);
+app.use('/api/users', userRoutes);
 
 // Handle CORS preflight requests
-app.options('*', cors()); // Respond to preflight requests for all routes
+app.options('*', cors());
 
-// Start server
+// Global Error Handler
+app.use((err, req, res, next) => {
+    console.error('Error:', err.stack);
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || 'Internal Server Error',
+    });
+});
+
+// Start the server
 app.listen(PORT, async () => {
     try {
-        await connectDB(); // Connect to the database
+        await connectDB();
         console.log(`Server is running at http://localhost:${PORT}`);
     } catch (error) {
         console.error('Failed to connect to the database:', error.message);
-        process.exit(1); // Exit with failure if database connection fails
+        process.exit(1); // Exit the process if DB connection fails
     }
 });

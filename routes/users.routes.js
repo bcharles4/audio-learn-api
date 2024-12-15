@@ -8,8 +8,7 @@ import {
     uploadProfilePicture
 } from "../controller/users.controller.js";
 
-import upload from '../backend/multerConfig.js'; // Ensure this points to the correct location
-
+import upload from '../backend/multerConfig.js'; // Ensure this points to the correct location for your multer config
 
 const router = express.Router();
 
@@ -30,6 +29,5 @@ router.delete("/:usersID", deleteUser);
 
 // Profile Picture Upload Route
 router.post('/upload-profile-picture', upload.single('profilePicture'), uploadProfilePicture);
-
 
 export default router;

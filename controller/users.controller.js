@@ -173,47 +173,35 @@ export const deleteUser = async (req, res) => {
 
 // controllers/users.controller.js
 
-
 export const uploadProfilePicture = async (req, res) => {
-    const { usersID } = req.body;
-
-    if (!usersID) {
-        return res.status(400).json({ success: false, message: 'UsersID is required' });
-    }
-
-    if (!req.file) {
-        return res.status(400).json({ success: false, message: 'No file uploaded' });
-    }
-
     try {
-        const user = await Users.findOneAndUpdate(
-            { usersID },
-            { profilePicture: `/uploads/${req.file.filename}` },
-            { new: true }
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'No file uploaded.' });
+        }
+
+        // Save the file path or other details in the database if needed
+        const profilePicturePath = `/uploads/${req.file.filename}`;
+
+        // Here you can update the user's profile picture in your database, e.g.
+        // Assuming you're using MongoDB and a User model with a `profilePicture` field
+        const user = await User.findOneAndUpdate(
+            { usersID: req.body.usersID }, // Match the user by their ID
+            { profilePicture: profilePicturePath }, // Save the file path to the user's profile
+            { new: true } // Return the updated user
         );
 
         if (!user) {
-            // Cleanup uploaded file if user not found
-            fs.unlinkSync(req.file.path);
-            return res.status(404).json({ success: false, message: 'User not found' });
+            return res.status(404).json({ success: false, message: 'User not found.' });
         }
 
-        res.status(200).json({
+        // Respond with the path to the uploaded image
+        res.json({
             success: true,
-            message: 'Profile picture uploaded successfully',
-            data: {
-                usersID: user.usersID,
-                profilePicture: user.profilePicture,
-            },
+            message: 'Profile picture uploaded successfully!',
+            data: { profilePicture: profilePicturePath }
         });
     } catch (error) {
         console.error('Error uploading profile picture:', error);
-
-        // Cleanup uploaded file if an error occurs
-        if (req.file && req.file.path) {
-            fs.unlinkSync(req.file.path);
-        }
-
-        res.status(500).json({ success: false, message: 'Internal server error' });
+        res.status(500).json({ success: false, message: 'Failed to upload profile picture.' });
     }
 };

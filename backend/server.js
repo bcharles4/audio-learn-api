@@ -10,19 +10,18 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 // Configure CORS for security
 app.use(cors({
-    origin: '*', // Use environment variable for frontend URL in production
+    origin: '*', // In production, you should specify the frontend URL, e.g. 'https://yourfrontenddomain.com'
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,  // If you're dealing with cookies or credentials
-
+    credentials: true,  // Allow cookies or credentials if needed
 }));
 
 // Parse JSON bodies
 app.use(express.json());
 
-// Serve static files (e.g., uploaded files)
+// Serve static files (e.g., uploaded profile pictures)
 const uploadsDir = path.join(process.cwd(), 'uploads');
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadsDir)); // Corrected the path to the 'uploads' folder
 
 // Routes
 app.use('/api/users', userRoutes);
@@ -42,7 +41,7 @@ app.use((err, req, res, next) => {
 // Start the server
 app.listen(PORT, async () => {
     try {
-        await connectDB();
+        await connectDB(); // Connect to the database
         console.log(`Server is running at http://localhost:${PORT}`);
     } catch (error) {
         console.error('Failed to connect to the database:', error.message);

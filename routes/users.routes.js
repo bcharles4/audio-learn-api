@@ -8,6 +8,9 @@ import {
     uploadProfilePicture
 } from "../controller/users.controller.js";
 
+import upload from '../backend/multerConfig.js'; // Ensure this points to the correct location
+
+
 const router = express.Router();
 
 // User registration route

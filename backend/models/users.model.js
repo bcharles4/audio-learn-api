@@ -5,6 +5,7 @@ const usersSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     password: { type: String, required: true},
+    profilePicture: { type: String, default: "" }, // Add profile picture field
 },{
     timestamps: true,
 });

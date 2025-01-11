@@ -1,4 +1,5 @@
-// backend/models/users.model.js
+import mongoose from "mongoose";
+
 const usersSchema = new mongoose.Schema({ 
     usersID: { type: String, required: true, unique: true },
     firstName: { type: String, required: true },
@@ -10,9 +11,10 @@ const usersSchema = new mongoose.Schema({
         filePath: String,
         uploadedAt: { type: Date, default: Date.now }
     }]
-}, {
+},{
     timestamps: true,
 });
+
 
 const Users = mongoose.model("Users", usersSchema);
 

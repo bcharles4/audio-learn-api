@@ -27,6 +27,6 @@ router.put("/:usersID", updateUser);
 // Delete user by usersID
 router.delete("/:usersID", deleteUser);
 
-router.put("editName/:usersID", updateUserName);
+router.put("/editName/:usersID", updateUserName);
 
 export default router;

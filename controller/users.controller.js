@@ -173,35 +173,3 @@ export const deleteUser = async (req, res) => {
 
 // controllers/users.controller.js
 
-export const uploadProfilePicture = async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ success: false, message: 'No file uploaded.' });
-        }
-
-        // Save the file path or other details in the database if needed
-        const profilePicturePath = `/uploads/${req.file.filename}`;
-
-        // Here you can update the user's profile picture in your database, e.g.
-        // Assuming you're using MongoDB and a User model with a `profilePicture` field
-        const user = await User.findOneAndUpdate(
-            { usersID: req.body.usersID }, // Match the user by their ID
-            { profilePicture: profilePicturePath }, // Save the file path to the user's profile
-            { new: true } // Return the updated user
-        );
-
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found.' });
-        }
-
-        // Respond with the path to the uploaded image
-        res.json({
-            success: true,
-            message: 'Profile picture uploaded successfully!',
-            data: { profilePicture: profilePicturePath }
-        });
-    } catch (error) {
-        console.error('Error uploading profile picture:', error);
-        res.status(500).json({ success: false, message: 'Failed to upload profile picture.' });
-    }
-};

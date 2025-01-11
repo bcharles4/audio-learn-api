@@ -37,62 +37,35 @@ export const userRegister = async (req, res) => {
     }
 };
 
-
 export const loginUser = async (req, res) => {
     const { usersID, password } = req.body;
 
-    // Debugging the received usersID and password
-    console.log("Received usersID:", usersID);  
-    console.log("Received password:", password);  
-
-    // Check if usersID and password are provided
     if (!usersID || !password) {
-        return res.status(400).json({
-            success: false,
-            message: "UsersID and password are required",
-        });
+        return res.status(400).json({ success: false, message: 'UsersID and password are required' });
     }
 
     try {
-        // Find user by usersID
         const user = await Users.findOne({ usersID });
 
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found",
-            });
+            return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        // Debugging: Log stored password
-        console.log("Stored password:", user.password);
-
-        // Directly compare password with stored password (without hashing)
         if (password !== user.password) {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid password",
-            });
+            return res.status(401).json({ success: false, message: 'Invalid password' });
         }
 
-        // Send user data on successful login
-        res.status(200).json({
-            success: true,
-            message: "Login successful",
-            data: {
-                usersID: user.usersID,
-                firstName: user.firstName,
-                lastName: user.lastName,
-            },
-        });
+        // Store user ID or other information in session
+        req.session.userID = user.usersID;
+        req.session.firstName = user.firstName;
+        req.session.lastName = user.lastName;
+
+        return res.status(200).json({ success: true, message: 'Login successful', data: user });
     } catch (error) {
-        // Handle unexpected errors
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
+        return res.status(500).json({ success: false, message: error.message });
     }
 };
+
 
 // Get user function
 export const getUser = async (req, res) => {
@@ -172,33 +145,31 @@ export const deleteUser = async (req, res) => {
 };
 
 
-
 export const updateUserName = async (req, res) => {
-    const { usersID } = req.params; // Extract usersID from URL parameters
-    const { firstName, lastName } = req.body; // Extract firstName and lastName from the request body
+    const { usersID } = req.params;
+    const { firstName, lastName } = req.body;
 
-    console.log(`Updating user with ID: ${usersID}`);
-    console.log(`New name: ${firstName} ${lastName}`);
+    // Ensure the user is logged in by checking the session
+    if (!req.session.userID) {
+        return res.status(401).json({ message: "User not logged in" });
+    }
 
-
-    // Ensure usersID is provided
-    if (!usersID) {
-        return res.status(400).json({ success: false, message: "UsersID is required" });
+    // Ensure the logged-in user is trying to update their own profile
+    if (usersID !== req.session.userID) {
+        return res.status(403).json({ message: "You cannot update someone else's profile" });
     }
 
     try {
-        // Find the user by usersID
         const user = await Users.findOne({ usersID });
 
         if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
+            return res.status(404).json({ message: "User not found" });
         }
 
         // Update the user's name fields
         if (firstName) user.firstName = firstName;
         if (lastName) user.lastName = lastName;
 
-        // Save the updated user
         const updatedUser = await user.save();
 
         res.status(200).json({
@@ -213,4 +184,12 @@ export const updateUserName = async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
+};
+
+
+const authenticateSession = (req, res, next) => {
+    if (!req.session.userID) {
+        return res.status(401).json({ message: 'User not logged in' });
+    }
+    next(); // Continue if user is logged in
 };

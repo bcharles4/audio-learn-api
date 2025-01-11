@@ -1,31 +1,39 @@
-import express from "express";
-import { 
-    userRegister, 
-    loginUser, 
-    getUser, 
-    updateUser, 
+import express from 'express';
+import {
+    userRegister,
+    loginUser,
+    getUser,
+    updateUser,
     deleteUser,
-    updateUserName
-} from "../controller/users.controller.js";
+    updateUserName,
+} from '../controller/users.controller.js';
 
 const router = express.Router();
 
+// Middleware to check if the user is logged in
+const authenticateSession = (req, res, next) => {
+    if (!req.session.userID) {
+        return res.status(401).json({ success: false, message: 'User not logged in' });
+    }
+    next(); // Proceed to the next middleware or route handler
+};
+
 // User registration route
-router.post("/register", userRegister);
+router.post('/register', userRegister);
 
 // User login route
-router.post("/login", loginUser);
+router.post('/login', loginUser);
 
-// Get user details by usersID
-router.get("/:usersID", getUser);
+// Get user details by usersID (public route)
+router.get('/:usersID', getUser);
 
-// Update user details by usersID (name, email, password, etc.)
-router.put("/:usersID", updateUser);
+// Update user details by usersID (protected route, user must be logged in)
+router.put('/:usersID', authenticateSession, updateUser);
 
-// Delete user by usersID
-router.delete("/:usersID", deleteUser);
+// Delete user by usersID (protected route, user must be logged in)
+router.delete('/:usersID', authenticateSession, deleteUser);
 
-// Update user's name (firstName, lastName) only
-router.put("/editName/:usersID", updateUserName);
+// Update user's name (firstName, lastName) only (protected route, user must be logged in)
+router.put('/editName/:usersID', authenticateSession, updateUserName);
 
 export default router;

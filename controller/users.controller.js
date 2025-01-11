@@ -172,10 +172,12 @@ export const deleteUser = async (req, res) => {
 };
 
 
+
 export const updateUserName = async (req, res) => {
     const { usersID } = req.params; // Extract usersID from URL parameters
     const { firstName, lastName } = req.body; // Extract firstName and lastName from the request body
 
+    // Ensure usersID is provided
     if (!usersID) {
         return res.status(400).json({ success: false, message: "UsersID is required" });
     }
@@ -208,4 +210,3 @@ export const updateUserName = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
-

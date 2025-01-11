@@ -5,7 +5,7 @@ import {
     getUser, 
     updateUser, 
     deleteUser,
-    uploadProfilePicture
+    updateUserName
 } from "../controller/users.controller.js";
 
 import upload from '../backend/multerConfig.js'; // Ensure this points to the correct location for your multer config
@@ -27,5 +27,6 @@ router.put("/:usersID", updateUser);
 // Delete user by usersID
 router.delete("/:usersID", deleteUser);
 
+router.put("editName/:usersID", updateUserName);
 
 export default router;

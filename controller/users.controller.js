@@ -171,5 +171,41 @@ export const deleteUser = async (req, res) => {
     }
 };
 
-// controllers/users.controller.js
+
+export const updateUserName = async (req, res) => {
+    const { usersID } = req.params; // Extract usersID from URL parameters
+    const { firstName, lastName } = req.body; // Extract firstName and lastName from the request body
+
+    if (!usersID) {
+        return res.status(400).json({ success: false, message: "UsersID is required" });
+    }
+
+    try {
+        // Find the user by usersID
+        const user = await Users.findOne({ usersID });
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Update the user's name fields
+        if (firstName) user.firstName = firstName;
+        if (lastName) user.lastName = lastName;
+
+        // Save the updated user
+        const updatedUser = await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "User name updated successfully",
+            data: {
+                usersID: updatedUser.usersID,
+                firstName: updatedUser.firstName,
+                lastName: updatedUser.lastName
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 

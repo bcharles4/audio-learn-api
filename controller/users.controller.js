@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Users from "../backend/models/users.model.js";
 import fs from "fs";
+import path from "path";
 
 // Register user
 export const userRegister = async (req, res) => {
@@ -187,3 +188,51 @@ const authenticateSession = (req, res, next) => {
 };
 
 export { authenticateSession };
+
+
+
+// Upload module and save metadata to MongoDB
+export const uploadModule = async (req, res) => {
+    const { title, description, usersID } = req.body;
+
+    if (!req.file || !usersID) {
+        return res.status(400).json({ success: false, message: "File, title, and usersID are required" });
+    }
+
+    try {
+        // File information
+        const file = req.file; // Assuming you're using multer for file uploads
+        const filePath = path.join('uploads', file.filename); // Adjust path based on your setup
+
+        // Build module metadata
+        const moduleData = {
+            title,
+            description,
+            filePath,
+            uploadedAt: new Date()
+        };
+
+        // Find the user and update their uploads
+        const user = await Users.findOne({ usersID });
+
+        if (!user) {
+            // Delete the file if user is not found
+            fs.unlinkSync(filePath);
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Add the module metadata to user's uploads
+        user.uploads.push(moduleData);
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Module uploaded and saved successfully",
+            data: moduleData
+        });
+
+    } catch (error) {
+        console.error("Error during file upload:", error);
+        res.status(500).json({ success: false, message: "Server error during file upload" });
+    }
+};

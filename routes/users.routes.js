@@ -6,7 +6,11 @@ import {
     updateUser,
     deleteUser,
     updateUserName,
+    uploadModule
 } from '../controller/users.controller.js';
+
+import upload from '../middleware/upload.js';
+
 
 const router = express.Router();
 
@@ -35,5 +39,8 @@ router.delete('/:usersID', authenticateSession, deleteUser);
 
 // Update user's name (firstName, lastName) only (protected route, user must be logged in)
 router.put('/editName/:usersID', authenticateSession, updateUserName);
+
+router.post('/upload_module', upload.single('file'), uploadModule);
+
 
 export default router;

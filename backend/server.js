@@ -48,6 +48,20 @@ app.use('/api/users', userRoutes);
 // Handle CORS preflight requests
 app.options('*', cors());
 
+app.get('/api/users/:userID/uploads', async (req, res) => {
+    const { userID } = req.params;
+
+    try {
+        const user = await Users.findOne({ usersID: userID });
+        if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+        res.status(200).json({ success: true, data: user.uploads });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server error fetching uploads" });
+    }
+});
+
+
 // Global Error Handler for all routes
 app.use((err, req, res, next) => {
     console.error('Error:', err.stack);

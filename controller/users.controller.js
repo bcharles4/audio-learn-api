@@ -142,15 +142,6 @@ export const updateUserName = async (req, res) => {
     const { usersID } = req.params;
     const { firstName, lastName } = req.body;
 
-    // Ensure the user is logged in
-    if (!req.session.userID) {
-        return res.status(401).json({ success: false, message: "User not logged in" });
-    }
-
-    // Ensure the logged-in user is trying to update their own profile
-    if (usersID !== req.session.userID) {
-        return res.status(403).json({ success: false, message: "You cannot update someone else's profile" });
-    }
 
     try {
         const user = await Users.findOne({ usersID });

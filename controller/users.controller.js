@@ -179,15 +179,6 @@ export const updateUserName = async (req, res) => {
     }
 };
 
-// Middleware to authenticate session
-const authenticateSession = (req, res, next) => {
-    if (!req.session.userID) {
-        return res.status(401).json({ success: false, message: "User not logged in" });
-    }
-    next();  // Proceed if the user is logged in
-};
-
-export { authenticateSession };
 
 
 

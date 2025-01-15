@@ -32,13 +32,13 @@ router.post('/login', loginUser);
 router.get('/:usersID', getUser);
 
 // Update user details by usersID (protected route, user must be logged in)
-router.put('/:usersID', authenticateSession, updateUser);
+router.put('/:usersID', updateUser);
 
 // Delete user by usersID (protected route, user must be logged in)
-router.delete('/:usersID', authenticateSession, deleteUser);
+router.delete('/:usersID',  deleteUser);
 
 // Update user's name (firstName, lastName) only (protected route, user must be logged in)
-router.put('/editName/:usersID', authenticateSession, updateUserName);
+router.put('/editName/:usersID',updateUserName);
 
 router.post('/upload_module', upload.single('file'), uploadModule);
 

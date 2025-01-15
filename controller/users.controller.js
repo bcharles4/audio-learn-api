@@ -137,13 +137,12 @@ export const deleteUser = async (req, res) => {
     }
 };
 
-// Update user's name
 export const updateUserName = async (req, res) => {
-    const { usersID } = req.params;
-    const { firstName, lastName } = req.body;
-
+    const { usersID } = req.params; // Extract usersID from the request parameters
+    const { firstName, lastName } = req.body; // Extract firstName and lastName from the request body
 
     try {
+        // Find the user by their ID
         const user = await Users.findOne({ usersID });
 
         if (!user) {
@@ -154,8 +153,10 @@ export const updateUserName = async (req, res) => {
         if (firstName) user.firstName = firstName;
         if (lastName) user.lastName = lastName;
 
+        // Save the updated user details to the database
         const updatedUser = await user.save();
 
+        // Respond with the updated user information
         res.status(200).json({
             success: true,
             message: "User name updated successfully",
@@ -166,6 +167,8 @@ export const updateUserName = async (req, res) => {
             }
         });
     } catch (error) {
+        // Handle server errors
+        console.error("Error during user update:", error);
         res.status(500).json({ success: false, message: "Server error during name update" });
     }
 };
